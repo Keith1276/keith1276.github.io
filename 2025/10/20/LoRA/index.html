@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>模型微调方法 | 春风得意马蹄急，一日看尽长安花</title><meta name="author" content="Keith"><meta name="copyright" content="Keith"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="大模型困境以ChatGPT为代表的大模型涌现出优秀的能力，许多用户希望进行模型定制化部署。但是微调大模型非常吃资源，微调7B模型需要3 * 28G的显存，至少需要两张A100才能满足要求，因此如何降低微调大模型的机器资源成为关注问题。 高效微调的基本原理以语言模型为例，在微调过程中加载预训练参数进行初始化，并通过最大化条件语言模型改了进行参数更新。 Full fine-tuning 学习到的参数增">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模型微调方法">
+<meta property="og:url" content="http://keith1276.github.io/2025/10/20/LoRA/index.html">
+<meta property="og:site_name" content="春风得意马蹄急，一日看尽长安花">
+<meta property="og:description" content="大模型困境以ChatGPT为代表的大模型涌现出优秀的能力，许多用户希望进行模型定制化部署。但是微调大模型非常吃资源，微调7B模型需要3 * 28G的显存，至少需要两张A100才能满足要求，因此如何降低微调大模型的机器资源成为关注问题。 高效微调的基本原理以语言模型为例，在微调过程中加载预训练参数进行初始化，并通过最大化条件语言模型改了进行参数更新。 Full fine-tuning 学习到的参数增">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://keith1276.github.io/img/cover3.png">
+<meta property="article:published_time" content="2025-10-20T08:27:58.000Z">
+<meta property="article:modified_time" content="2025-10-22T06:48:33.495Z">
+<meta property="article:author" content="Keith">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://keith1276.github.io/img/cover3.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "模型微调方法",
+  "url": "http://keith1276.github.io/2025/10/20/LoRA/",
+  "image": "http://keith1276.github.io/img/cover3.png",
+  "datePublished": "2025-10-20T08:27:58.000Z",
+  "dateModified": "2025-10-22T06:48:33.495Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Keith",
+      "url": "http://keith1276.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/fbb1.jpg"><link rel="canonical" href="http://keith1276.github.io/2025/10/20/LoRA/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '模型微调方法',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover3.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">春风得意马蹄急，一日看尽长安花</span></a><a class="nav-page-title" href="/"><span class="site-name">模型微调方法</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">模型微调方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-20T08:27:58.000Z" title="发表于 2025-10-20 16:27:58">2025-10-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-10-22T06:48:33.495Z" title="更新于 2025-10-22 14:48:33">2025-10-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="大模型困境"><a href="#大模型困境" class="headerlink" title="大模型困境"></a>大模型困境</h1><p>以ChatGPT为代表的大模型涌现出优秀的能力，许多用户希望进行模型定制化部署。但是微调大模型非常吃资源，微调7B模型需要3 * 28G的显存，至少需要两张A100才能满足要求，因此如何<strong>降低微调大模型的机器资源</strong>成为关注问题。</p>
+<h1 id="高效微调的基本原理"><a href="#高效微调的基本原理" class="headerlink" title="高效微调的基本原理"></a>高效微调的基本原理</h1><p>以语言模型为例，在微调过程中加载预训练参数进行初始化，并通过最大化条件语言模型改了进行参数更新。</p>
+<p>Full fine-tuning 学习到的参数增量和预训练参数维度是一致的，这种方式需要的资源很多。研究者认为能用更少的参数表示上述要学习的参数增量。这种微调方法称为高效微调。针对高效微调，一般有如下方法：<strong>LoRA</strong>、<strong>Prefixtuning</strong>、<strong>Adapter</strong>。</p>
+<h1 id="LoRA"><a href="#LoRA" class="headerlink" title="LoRA"></a>LoRA</h1><p>主要参考文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/646791309">https://zhuanlan.zhihu.com/p/646791309</a></p>
+<p><strong>LORA</strong>是一种低资源微调大模型方法，出自论文<a href="https://link.zhihu.com/?target=https://arxiv.org/pdf/2106.09685.pdf">LoRA: Low-Rank Adaptation of Large Language Models。</a> 使用<strong>LORA</strong>，训练参数仅为整体参数的万分之一、GPU显存使用量减少2&#x2F;3且不会引入额外的推理耗时。</p>
+<h3 id="Instrisic-Dimension"><a href="#Instrisic-Dimension" class="headerlink" title="Instrisic Dimension"></a>Instrisic Dimension</h3><p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2012.13255">https://arxiv.org/abs/2012.13255</a></p>
+<p>上述研究表明：预训练模型拥有极小的内在维度，存在一个极低维度的参数，微调他和全参数空间微调起到相同的效果。同时上班的研究发现，在预训练后，约大的模型拥有越小的内在维度，这也解释了为何大模型都拥有良好的few-shot能力。 </p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>什么意思呢，在微调的时候，发现原来的参数矩阵比如R *K，微调的变化集中在一个小的子空间中，根本不是全部有变化的。因此，<strong>直接把更新限制为低秩矩阵</strong>，既能节省参数，又能保留适配能力——这是 LoRA 的出发点。</p>
+</blockquote>
+<p><img src="/./LoRA/v2-85a4ce99f2b88645a7c1751cbc4691fd_1440w.jpg" alt="img"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>Few-shot 能力（小样本学习）</p>
+<p>模型在推理阶段仅仅通过提示词中提供的几个例子，就能够学会任务的格式和规律，而不需要重新训练。</p>
+<img src="./LoRA/image-20251020164510685.png" alt="image-20251020164510685" style="zoom:150%;" /></blockquote>
+<h3 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h3><p>把rank比较高的矩阵变成rank比较小的矩阵，这样一来微调的时候负担就会小很多</p>
+<p><img src="/./LoRA/image-20251020170914647.png" alt="image-20251020170914647"></p>
+<h3 id="LoRA优点"><a href="#LoRA优点" class="headerlink" title="LoRA优点"></a>LoRA优点</h3><p><img src="/./LoRA/image-20251020195056961.png" alt="image-20251020195056961"></p>
+<ul>
+<li>**共享性强：**在上述图片中，一个预训练模型可以被共享，并用于构建多个针对不同任务的小型LoRA模块，我们可以冻结共享模型，只需替换上图中的A和B，就能高效的切换任务，显著减小存储需求和任务切换开销。</li>
+<li>**训练高效：**LoRA使得训练过程更高效，硬件门槛变成全量的三分之一</li>
+<li><strong>无推理延迟</strong>：这是因为简单的线性组合，在结构上不回避完全微调模型引入额外的推理延迟。（可以在部署前把训练的权重直接加到矩阵上边去）</li>
+<li><strong>兼容性强</strong>：和其他的微调方法相互独立，论文附录E中有相关实例</li>
+</ul>
+<h3 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h3><p><img src="/./LoRA/image-20251020203029871.png" alt="image-20251020203029871"></p>
+<p>以语言模型举例，上图是已知prompt和t时刻之前生成y字符，生成第t个字符符合标签的概率，要求这个似然概率最大。这就是全量微调的目标</p>
+<p><strong>LoRA</strong> 提出的公式长这样，是一个增量的参数，但他非常的小。架构如上图所示，是一个并行的微量架构，训练的时候只需要动这一部分即可</p>
+<p><img src="/./LoRA/image-20251020203639539.png" alt="image-20251020203639539"></p>
+<h3 id="效果参考"><a href="#效果参考" class="headerlink" title="效果参考"></a>效果参考</h3><p>观察表格，发现相比Adapter某个变体，甚至参数比他小的情况下跑出了更好的效果。</p>
+<p>WikiSQL：自然语言生成SQL语句</p>
+<p>MNLI： 给出假设和条件，判断是蕴含、矛盾还是中立</p>
+<p>下表是对GPT3的下游任务微调</p>
+<p><img src="/./LoRA/image-20251020234130736.png" alt="image-20251020234130736"></p>
+<h3 id="代码注意："><a href="#代码注意：" class="headerlink" title="代码注意："></a>代码注意：</h3><p>最开始的矩阵初始化，B初始化为0，A初始化为近0，保证微调严格从0开始。</p>
+<p>输入x，计算在初始权重W_0下的结果，然后加上 B和A矩阵相乘再乘x的结果即可</p>
+<h1 id="Adapter"><a href="#Adapter" class="headerlink" title="Adapter"></a>Adapter</h1><p><img src="/./LoRA/image-20251021083724620.png" alt="image-20251021083724620"></p>
+<p>Adapter的原理是相当清晰易懂的，直接冻结原有pre-train模型的权重，额外添加一些可训练的层。缺点是会引入推理延时，毕竟层更多了，增加了参数量。</p>
+<p>以上图为例。在前馈层后添加了Adapter，由一个bottleNeck组成。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>Adapter是这几种方法里边最粗暴的方法，就是直接加层，进行再次训练即可。</p>
+</blockquote>
+<h1 id="Prefix-Tuning"><a href="#Prefix-Tuning" class="headerlink" title="Prefix-Tuning"></a>Prefix-Tuning</h1><p><img src="/./LoRA/image-20251021092827817.png" alt="image-20251021092827817"></p>
+<p>这个图放着像是插入了tokens一样，实际上并非如此。</p>
+<p>很有意思，从prompt-tuning的角度来看，在进行任务之前如果输入几个promt，给点实例，认为效果会更好，但是大家不知道如何从若干个tokens里边挑出来最好的promt，甚至说随便给几个promt效果也可能会变好。所以如果采用离散的形式，是很难进行搜索的</p>
+<p>只动了attention层，举例来说在子回归任务中，index &#x3D; k的时候，Q不变，前边的KV全都被加上了prefix，同时transformer每一层的prefix都不一样。</p>
+<h1 id="微调方法总结"><a href="#微调方法总结" class="headerlink" title="微调方法总结"></a>微调方法总结</h1><h3 id="Adapter-1"><a href="#Adapter-1" class="headerlink" title="Adapter"></a>Adapter</h3><ul>
+<li><strong>思路</strong>：在原模型层间插入小型瓶颈块（下投影 +非线性 + 上投影），训练新增的层</li>
+<li>**优点：**参数量多，表达力强，如果继续微调就继续加层</li>
+<li><strong>代价</strong>：推理会稍有延迟，增加显存需求，参数量低于FT，高于LoRA 和 Prefix-tuning</li>
+</ul>
+<h3 id="LoRA-1"><a href="#LoRA-1" class="headerlink" title="LoRA"></a>LoRA</h3><ul>
+<li>**思路：*<em>将既有的矩阵（attention里边的投影矩阵或者其他线性矩阵都可以）分解为低秩矩阵，对一个A * B矩阵而言，参数增量为（A+B）</em> r</li>
+<li>**优点：**参数和显存开销极低，推理几乎不延时，在部署的时候可以直接把增量加到原来的矩阵上边去，和其他微调策略兼容</li>
+<li>**代价：**表达能力较弱，某些任务上可能需要提高rank或者混合其他策略</li>
+</ul>
+<h3 id="Prefix-Tuning-1"><a href="#Prefix-Tuning-1" class="headerlink" title="Prefix-Tuning"></a>Prefix-Tuning</h3><ul>
+<li><strong>思路</strong>：在各个注意力层前边天假可训练前缀，引导解码上下文</li>
+<li><strong>优点</strong>：参数量极少，部署简单</li>
+<li><strong>代价</strong>：前缀长度决定容量，主要适用于生成式&#x2F;自回归Transformer（感觉很像是attention挂件）</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://keith1276.github.io">Keith</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://keith1276.github.io/2025/10/20/LoRA/">http://keith1276.github.io/2025/10/20/LoRA/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://keith1276.github.io" target="_blank">春风得意马蹄急，一日看尽长安花</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/cover3.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/10/20/FlowModel/" title="Flow Model"><img class="cover" src="/img/cover2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Flow Model</div></div><div class="info-2"><div class="info-item-1">主要参考文章: https://1wata.github.io/2025/05/20/ai/generative_ai/normalizing_flow_models/ 模型思想回顾一下生成模型的核心目标：最大观测数据的对数似然 然而，直接对高维复杂数据的对数似然进行建模和优化很困难，于是像VAE和Diffusion方法，往往通过优化对数似然的一个下界**（ELBO）**来间接达到目的。虽然在实践中取得了成功，但是始终和直接优化存在一定差距。 基于流的模型提供了一条直接优化对数似然的路径，核心思想在于构建一个从真实数据分布到一个简单、易于处理的先验分布的可逆映射。借助数学中的变量替换定理，这个可逆映射可以将复杂数据分布下的概率密度计算转化为简单分布下的概率密度计算，从而实现对数似然的直接建模和优化。 具体而言：函数目标如下：  现在引入隐变量z，其服从简单分布，比如标准高斯分布，我们希望学习一个可逆映射，让z值和数据分布中的值相互转换。  其中右边的一项是雅可比矩阵行列式，左边一项是逆映射的概率密度。 为了简洁，下边用一个记号代表Jacobian矩阵的导数，将这个变换引入到上边的...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Keith</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/keith1276" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:22373334@buaa.edu.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83"><span class="toc-number">1.</span> <span class="toc-text">大模型困境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%AB%98%E6%95%88%E5%BE%AE%E8%B0%83%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">高效微调的基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#LoRA"><span class="toc-number">3.</span> <span class="toc-text">LoRA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Instrisic-Dimension"><span class="toc-number">3.0.1.</span> <span class="toc-text">Instrisic Dimension</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%A7%88"><span class="toc-number">3.0.2.</span> <span class="toc-text">概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LoRA%E4%BC%98%E7%82%B9"><span class="toc-number">3.0.3.</span> <span class="toc-text">LoRA优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.0.4.</span> <span class="toc-text">原理介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%88%E6%9E%9C%E5%8F%82%E8%80%83"><span class="toc-number">3.0.5.</span> <span class="toc-text">效果参考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%B3%A8%E6%84%8F%EF%BC%9A"><span class="toc-number">3.0.6.</span> <span class="toc-text">代码注意：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Adapter"><span class="toc-number">4.</span> <span class="toc-text">Adapter</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Prefix-Tuning"><span class="toc-number">5.</span> <span class="toc-text">Prefix-Tuning</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BE%AE%E8%B0%83%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">微调方法总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Adapter-1"><span class="toc-number">6.0.1.</span> <span class="toc-text">Adapter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LoRA-1"><span class="toc-number">6.0.2.</span> <span class="toc-text">LoRA</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prefix-Tuning-1"><span class="toc-number">6.0.3.</span> <span class="toc-text">Prefix-Tuning</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/10/20/LoRA/" title="模型微调方法"><img src="/img/cover3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模型微调方法"/></a><div class="content"><a class="title" href="/2025/10/20/LoRA/" title="模型微调方法">模型微调方法</a><time datetime="2025-10-20T08:27:58.000Z" title="发表于 2025-10-20 16:27:58">2025-10-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/20/FlowModel/" title="Flow Model"><img src="/img/cover2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Flow Model"/></a><div class="content"><a class="title" href="/2025/10/20/FlowModel/" title="Flow Model">Flow Model</a><time datetime="2025-10-20T01:49:37.000Z" title="发表于 2025-10-20 09:49:37">2025-10-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/19/DDIM/" title="DDIM"><img src="/img/cover1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DDIM"/></a><div class="content"><a class="title" href="/2025/10/19/DDIM/" title="DDIM">DDIM</a><time datetime="2025-10-19T00:09:37.000Z" title="发表于 2025-10-19 08:09:37">2025-10-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/10/15/DDPM/" title="DDPM"><img src="/img/cover4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DDPM"/></a><div class="content"><a class="title" href="/2025/10/15/DDPM/" title="DDPM">DDPM</a><time datetime="2025-10-15T00:09:37.000Z" title="发表于 2025-10-15 08:09:37">2025-10-15</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover3.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Keith</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.1"></script><script src="/js/main.js?v=5.5.1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
