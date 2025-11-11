@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DINO | 春风得意马蹄急，一日看尽长安花</title><meta name="author" content="Keith"><meta name="copyright" content="Keith"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="参考文章：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;1940400858836742367 概览传统深度学习依赖大量人工标注数据，而自监督学习通过从数据本身生成的监督信号，如图像块之间的关系、时序连续性，彻底摆脱了这个限制。为通用视觉表征学习铺平了道路。模型和数据集规模可以自由拓展，无需标注成本，适合大规模的训练。 核心创新点  数据和模型规模协同优化 Gram锚定（为了解决pat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DINO">
+<meta property="og:url" content="http://keith1276.github.io/2025/10/23/DINO/index.html">
+<meta property="og:site_name" content="春风得意马蹄急，一日看尽长安花">
+<meta property="og:description" content="参考文章：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;1940400858836742367 概览传统深度学习依赖大量人工标注数据，而自监督学习通过从数据本身生成的监督信号，如图像块之间的关系、时序连续性，彻底摆脱了这个限制。为通用视觉表征学习铺平了道路。模型和数据集规模可以自由拓展，无需标注成本，适合大规模的训练。 核心创新点  数据和模型规模协同优化 Gram锚定（为了解决pat">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://keith1276.github.io/img/cover4.png">
+<meta property="article:published_time" content="2025-10-23T10:24:38.000Z">
+<meta property="article:modified_time" content="2025-11-11T08:34:19.525Z">
+<meta property="article:author" content="Keith">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://keith1276.github.io/img/cover4.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "DINO",
+  "url": "http://keith1276.github.io/2025/10/23/DINO/",
+  "image": "http://keith1276.github.io/img/cover4.png",
+  "datePublished": "2025-10-23T10:24:38.000Z",
+  "dateModified": "2025-11-11T08:34:19.525Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Keith",
+      "url": "http://keith1276.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/fbb1.jpg"><link rel="canonical" href="http://keith1276.github.io/2025/10/23/DINO/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DINO',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover4.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">春风得意马蹄急，一日看尽长安花</span></a><a class="nav-page-title" href="/"><span class="site-name">DINO</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">DINO</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-23T10:24:38.000Z" title="发表于 2025-10-23 18:24:38">2025-10-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-11T08:34:19.525Z" title="更新于 2025-11-11 16:34:19">2025-11-11</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>参考文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/1940400858836742367">https://zhuanlan.zhihu.com/p/1940400858836742367</a></p>
+<h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><p>传统深度学习依赖大量人工标注数据，而自监督学习通过从数据本身生成的监督信号，如图像块之间的关系、时序连续性，彻底摆脱了这个限制。为通用视觉表征学习铺平了道路。模型和数据集规模可以自由拓展，无需标注成本，适合大规模的训练。</p>
+<p><strong>核心创新点</strong></p>
+<ul>
+<li>数据和模型规模协同优化</li>
+<li>Gram锚定（为了解决patch后期和cls token相似度过高的问题）</li>
+<li>后处理策略（Post-hoc Strategies）</li>
+<li>ViT骨干也进行了改进，使用了axial RoPE位置编码, 进行了位置编码正则化来避免位置伪影</li>
+</ul>
+<h2 id="术语概念解释"><a href="#术语概念解释" class="headerlink" title="术语概念解释"></a>术语概念解释</h2><p>Vit输出的是密集特征，以用于下游任务。但是很有可能学到的每个patch的特征并不是很有独特性，即所有patch的区分度很小。</p>
+<p>余弦退火调度：学习率调整策略，让学习率按照余弦函数的形式从初始值平滑衰减接近0. 在自监督尤其transformer广泛应用</p>
+<p>相似度图(patch similarity Maps)： 计算图像所有局部块特征之间的相似性，生成一个对称矩阵或者热力图，反映模型对图像内部结构的理解程度。</p>
+<h2 id="现有自监督学习方法问题"><a href="#现有自监督学习方法问题" class="headerlink" title="现有自监督学习方法问题"></a>现有自监督学习方法问题</h2><p>自监督学习初衷是通过无约束的海量数据，训练任意大规模的高性能模型，但实际规模化应用中存在多重障碍。</p>
+<p><strong>存在模型不稳定与坍塌（Collapse）的情况</strong>：尽管DINO v2通过对比损失设计和正则化等方法缓解了部分问题，但是进一步扩大规模仍然会出现新的问题。例如，模型可能退化为输出常数特征（所有输入映射到相同点），完全丢失有用的信息。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>所谓 自监督损失指的是对比损失：他的目标是为了不依赖标签，通过让统一图像不同视角产生相似的特征，让不同图像特征原理，从而学习出有语义的表示。DINO用的是一种无标签的知识蒸馏形式：有一个teacher网络，有一个student网络，两者结构相同但是参数不同。</p>
+<p>对于同一个图片的两种不同增强方式：比如颜色扰动、模糊、crop,要求两者输出近似相等。</p>
+</blockquote>
+<p>所谓坍塌或者退化指的就是 ，如果说模型学会了输出相同的向量：那么无论什么图片，两种输出都近似相当，但是没有学到任何有用的表示</p>
+<p>DINO对此做了一系列的限制</p>
+<p>所谓不稳定，因为teacher的参数是由student的参数的EMA（滑动平均）得到的，而student的参数还在剧烈的更新中，如果两者更新不同步，就会发生loss剧烈震荡。</p>
+<p><strong>规模化中的三大问题</strong></p>
+<ol>
+<li>无标注数据的效用问题：如何从无标注数据中筛选有用的数据，直接训练会降低模型效率？互联网爬取的原始数据包含噪声。</li>
+<li>训练调度的不确定性：余弦退火调度需要预设总训练步数，但在超大数据规模上难以提前最优步数。</li>
+<li>长周期训练中的特征退化，当模型参数达到VIT-Large（3B）且训练时间延长的时候，早期阶段特征质量提升，但后续相似度图显示特征逐渐退化（如过度平滑或者丢失局部细节）。图像块之间的相似度区趋于一致，失去判别性。</li>
+</ol>
+<h2 id="模型的任务定义"><a href="#模型的任务定义" class="headerlink" title="模型的任务定义"></a>模型的任务定义</h2><p>在DINO v2的基础上，希望进一步增加模型规模，以及拥有更好的稠密任务能力，就是不同patches的embedding可以很好用于语义分割、物体检测之类的任务。</p>
+<h1 id="模型概览"><a href="#模型概览" class="headerlink" title="模型概览"></a>模型概览</h1><p>这个图的意思是，用红十字标定一个patch，亮度表示其他patch的向量和其余弦相似度的对比。</p>
+<p><img src="/./DINO/image-20251024145323917.png" alt="image-20251024145323917"></p>
+<h1 id="数据获取"><a href="#数据获取" class="headerlink" title="数据获取"></a>数据获取</h1><p>在17B图像数据矿上应用了三种策略的数据子集：</p>
+<h3 id="1-自动聚类平衡采样（Hierarchical-k-means-curation）"><a href="#1-自动聚类平衡采样（Hierarchical-k-means-curation）" class="headerlink" title="1.自动聚类平衡采样（Hierarchical k-means curation）:"></a>1.自动聚类平衡采样（Hierarchical k-means curation）:</h3><ol>
+<li><p>使用DINO2计算图像向量</p>
+</li>
+<li><p>进行 <strong>分层聚类（hierarchical k-means）</strong>：</p>
+<ul>
+<li><p>聚成多层结构（5 层），每层的簇数量依次为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">200M → 8M → 800k → 100k → 25k</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>也就是从细到粗地组织视觉概念（fine → coarse hierarchy）；</p>
+</li>
+</ul>
+</li>
+<li><p>应用 <strong>平衡采样算法（balanced sampling algorithm）</strong> 来保证每个视觉簇都被均匀采样。(也就是训练的时候各个类都能被均衡的使用到)</p>
+</li>
+</ol>
+<h3 id="2-基于检索的任务相关数据（retrieval-based-curation）"><a href="#2-基于检索的任务相关数据（retrieval-based-curation）" class="headerlink" title="2.基于检索的任务相关数据（retrieval-based curation）"></a>2.基于检索的任务相关数据（retrieval-based curation）</h3><p>由于网络数据包含一些抽象艺术、表情包之类的图片，这些对于我们希望模型具有的能力是不符合的。所以从ImageNet等数据集中，使用DINOv2进行embedding，做相似度匹配，筛选出17B图像中对任务比较有用的图像.</p>
+<h3 id="3-公开数据集"><a href="#3-公开数据集" class="headerlink" title="3.公开数据集"></a>3.公开数据集</h3><p>这一部分直接用imageNet之类的数据集，是为了让模型在benchmark任务上有更好的能力，是第二个的补充吧看起来，因为毕竟不用这部分数据在benchmark上太难赢了。</p>
+<p>其实还有一个对应的异质性，但是DINO v3最后用了这个方法。</p>
+<p><img src="/./DINO/image-20251024180315085.png" alt="image-20251024180315085"></p>
+<p>最终训练集是三路并行数据的<strong>混合采样（mixture sampling）</strong>：</p>
+<ul>
+<li>模型训练时从三种来源中按比例取样；</li>
+<li>比例会动态调整（比如 early stage 更多来自 balanced data，后期更多来自 retrieval data）；</li>
+<li>目标是在“多样性（diversity）”与“相关性（usefulness）”之间取得平衡</li>
+</ul>
+<h1 id="训练阶段"><a href="#训练阶段" class="headerlink" title="训练阶段"></a>训练阶段</h1><h3 id="Loss定义"><a href="#Loss定义" class="headerlink" title="Loss定义"></a>Loss定义</h3><p>DINOv3在 v2的基础上引入了patch之间的loss,一共包含四个部分：</p>
+<p><img src="/./DINO/640.png" alt="图片"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>一、<strong>全局目标 LDINO</strong></p>
+<ul>
+<li>让不同增强版本的同一图像在 embedding 空间靠近</li>
+<li>关注<strong>整体语义</strong>（global features）</li>
+</ul>
+<p><strong>优化技巧：</strong> 使用 <strong>Sinkhorn-Knopp</strong>（SwAV 的分布式归一化算法）替代 DINO 的 centering，保证训练稳定性并避免 collapse。</p>
+<p>二、<strong>局部目标 LiBOT</strong></p>
+<ul>
+<li><strong>来源：</strong> iBOT（Zhou et al., 2021）</li>
+<li><strong>本质：</strong> Patch-level latent reconstruction<ul>
+<li>模型学习 <strong>每个 patch 的特征</strong></li>
+<li>让局部 patch embedding 能够重构或预测图像中其它 patch</li>
+</ul>
+</li>
+<li><strong>作用：</strong> 增强 <strong>局部感知能力</strong>，提升 dense prediction（分割、目标检测、深度估计）性能。</li>
+</ul>
+<p><strong>三、Koleo 正则化 LKoleo</strong></p>
+<ul>
+<li><strong>作用：</strong> 强制 batch 内的 feature 在 embedding 空间<strong>均匀分布</strong></li>
+<li><strong>好处：</strong><ul>
+<li>避免特征聚集在局部空间，提升表示的多样性</li>
+<li>改善分割、深度估计等 dense 任务性能</li>
+</ul>
+</li>
+<li><strong>权重：</strong> 论文中只加了 0.1，说明是一个轻量辅助正则。</li>
+</ul>
+<p><strong>四、Gram</strong></p>
+</blockquote>
+<h1 id="推理阶段"><a href="#推理阶段" class="headerlink" title="推理阶段"></a>推理阶段</h1><p><img src="/./DINO/image-20251024150805888.png" alt="image-20251024150805888"></p>
+<h1 id="patch-相似度匹配"><a href="#patch-相似度匹配" class="headerlink" title="patch 相似度匹配"></a>patch 相似度匹配</h1><p>网上一个博客给的，他甚至用的卫星图训练版本</p>
+<p><img src="/./DINO/image-20251027171014459.png" alt="image-20251027171014459"></p>
+<p>采用vitl 预训练参数出来的结果下图:</p>
+<p><img src="/./DINO/image-20251027181652263.png" alt="image-20251027181652263"></p>
+<p><img src="/./DINO/image-20251027181823661.png" alt="image-20251027181823661"></p>
+<h3 id="补充添加PCA"><a href="#补充添加PCA" class="headerlink" title="补充添加PCA"></a>补充添加PCA</h3><p>可以看到纯patch的相似度匹配就是没有语义的，颜色像就会匹配到一起,体现在中间一条黄色带，<strong>其实是那边泥土比较多，颜色比较像</strong></p>
+<p>这里添加pca-dim &#x3D; 3)</p>
+<p><img src="/./DINO/image-20251027204642389.png" alt="image-20251027204642389"></p>
+<h1 id="DINO-线性头预测patch类别"><a href="#DINO-线性头预测patch类别" class="headerlink" title="DINO + 线性头预测patch类别"></a>DINO + 线性头预测patch类别</h1><h3 id="使用VOC12数据集"><a href="#使用VOC12数据集" class="headerlink" title="使用VOC12数据集"></a>使用VOC12数据集</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class SimpleDecoder(nn.Module):</span><br><span class="line">    def __init__(self, in_channels, nc=1):</span><br><span class="line">        super().__init__()</span><br><span class="line">        self.decode = nn.Sequential(</span><br><span class="line">            nn.Conv2d(in_channels, 256, 3, padding=1),</span><br><span class="line">            nn.ReLU(inplace=True),</span><br><span class="line">            nn.Conv2d(256, nc, kernel_size=1)</span><br><span class="line">        )</span><br><span class="line">    def forward(self, x):</span><br><span class="line">        return self.decode(x)</span><br></pre></td></tr></table></figure>
+
+<p>那这里的总参数量就是4096 *256 <em>3 <em>3  +  256 * 21 * 1 * 1 * 1, 约为**943万</em></em> </p>
+<p>DINO模型为vital-16</p>
+<p>绿色部分为sofa ，红色部分为毛&#x3D;猫，黑色部分预测为背景。</p>
+<p><img src="/./DINO/image-20251101094445349.png" alt="image-20251101094445349"></p>
+<p>​					</p>
+<p><img src="/./DINO/image-20251101094511506.png" alt="image-20251101094511506"></p>
+<p>最终的mIoU指标为 0.41</p>
+<h1 id="调整解码器"><a href="#调整解码器" class="headerlink" title="调整解码器"></a>调整解码器</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">class PrototypeDecoder(nn.Module):</span><br><span class="line">    def __init__(self, in_channels, nc=1, prototype_dim=256):</span><br><span class="line">        super().__init__()</span><br><span class="line">        self.decode = nn.Sequential(</span><br><span class="line">            nn.Conv2d(in_channels, prototype_dim, 3, padding=1),</span><br><span class="line">            nn.ReLU(inplace=True),</span><br><span class="line">            nn.Conv2d(prototype_dim, prototype_dim, 3, padding=1),</span><br><span class="line">            nn.ReLU(inplace=True),</span><br><span class="line">            nn.Conv2d(prototype_dim, prototype_dim, 1)</span><br><span class="line">        )</span><br><span class="line">        # 每个类别的可学习向量</span><br><span class="line">        self.class_vectors = nn.Parameter(torch.randn(nc, prototype_dim))</span><br><span class="line">    </span><br><span class="line">    def forward(self, x):</span><br><span class="line">        feat = self.decode(x)</span><br><span class="line">        B, C, H, W = feat.shape</span><br><span class="line">        feat_flat = feat.permute(0, 2, 3, 1).reshape(B, H*W, C)</span><br><span class="line">        similarity = torch.einsum(&#x27;bpc,kc-&gt;bpk&#x27;, feat_flat, self.class_vectors)</span><br><span class="line">        similarity = similarity.permute(0, 2, 1).reshape(B, -1, H, W)</span><br><span class="line">        return similarity </span><br></pre></td></tr></table></figure>
+
+<p>加一个卷积层 256*256 *3 *3，相比第一个卷积却是蚊子腿参数量了</p>
+<p>为每个类别提供可学习向量, 也是基本不影响训练的参数量， 21 * d_model, 参数量也不太多，观察一下能够有多少的性能提升</p>
+<p>反思实验效果，GPT给了一个这样的语气，在<strong>CLIP上已经有了该类技巧比较成熟的做法</strong></p>
+<h3 id="加了一个卷积层但是prototype没有L2正则-此时最好的mIOU是0-4277"><a href="#加了一个卷积层但是prototype没有L2正则-此时最好的mIOU是0-4277" class="headerlink" title="加了一个卷积层但是prototype没有L2正则 此时最好的mIOU是0.4277"></a>加了一个卷积层但是prototype没有L2正则 此时最好的mIOU是0.4277</h3><p><img src="/./DINO/image-20251102192821498.png" alt="image-20251102192821498"></p>
+<h3 id="关于Prototype方法的一些思考"><a href="#关于Prototype方法的一些思考" class="headerlink" title="关于Prototype方法的一些思考"></a>关于Prototype方法的一些思考</h3><p>为何使用可学习向量效果优于直接线性层输出分类结果？</p>
+<p>假设在使用线性分类的前一层输出dimension为256，那么实际上如果直接分类，参数量为 21 *256 *1 * 1【所以1 *1 卷积就是全连接的线性层】</p>
+<p>做prototype方法的优势在于L2正则化，抛却了长度的影响，从数学角度看，线性层是Wx+b,如果光为每个类创建向量做相似度匹配则是</p>
+<p>直接是A x，甚至连bias都没有了。 所以L2正则和温度调控是基本要加的</p>
+<p>所以在之后使用这个方法进行类的预测的时候，可以自然而然加上温控因子以及L2正则</p>
+<p><strong>实际运行结果来说，最后的mIOU反而降低了1%</strong></p>
+<h1 id="LoRA微调"><a href="#LoRA微调" class="headerlink" title="LoRA微调"></a>LoRA微调</h1><p>参考前几次的文章，具体而言，对vitl transformer架构最后6层的所有qkv矩阵以及fc进行微调</p>
+<p>最后的mIOU指标依旧在0.4出头一点</p>
+<h1 id="关于训练过程一些思考"><a href="#关于训练过程一些思考" class="headerlink" title="关于训练过程一些思考"></a>关于训练过程一些思考</h1><p><img src="/./DINO/image-20251102162507505.png" alt="image-20251102162507505"></p>
+<h1 id="效果反思"><a href="#效果反思" class="headerlink" title="效果反思"></a>效果反思</h1><p>明明采用很多种方法调整了decode-head，最后甚至用上了LoRA，但是mIOU一直停留在0.40~0.42之间，甚至17年的论文都达到了0.6、0.7，回看我的VOC12原来和他们的VOC12并不是同一个VOC12，他们的VOC12数据集有专属的SBD增强，最后的全量训练数据有1W。回看这个指标其实是合理的。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://keith1276.github.io">Keith</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://keith1276.github.io/2025/10/23/DINO/">http://keith1276.github.io/2025/10/23/DINO/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://keith1276.github.io" target="_blank">春风得意马蹄急，一日看尽长安花</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/cover4.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/10/26/pointNet/" title="pointNet"><img class="cover" src="/img/cover2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">pointNet</div></div><div class="info-2"><div class="info-item-1">参考文章：https://zhuanlan.zhihu.com/p/17734324311 PointNet工作原理赋予每个点1024维的特征，然后一个maxpooling汇聚 3D点云是一种无结构的数据，是散乱分布在空间中的，如果改变点云的输入顺序，模型依旧可以理解数据。而传统的图像是有顺序的，这就意味着图像的处理算法不能用来处理点云。 pointNet就是这个领域的的代表性工作。具体而言，有如下步骤：  提取每个小球的特征 汇总所有小球的特征：使用最大池化1方法，找出所有点云中最突出的特征 识别形状：最后，根据汇总的特征，识别出这些小球组成的形状。  局限性没有充分考虑点与点之间的局部结构。单独提取了每个点特征，然后做了个全局池化，主观来想的话应该做全局的点云分类问题不大，但是去做一些密集任务初步认为不太理想 损失函数设计T-Net方面，用自映射矩阵 I 减去 A * A_T, 使得A矩阵代表的变换为正交变换。 正交变换的话就仅仅对应旋转和反射，甚至没有平移  对全局的分类，引入交叉熵损失 对物体的分类本质上还是交叉熵损失，但是可想而知这个数据标注难度很大  物体分割和场景分...</div></div></div></a><a class="pagination-related" href="/2025/10/22/Splatting/" title="3D_Gaussian_Splatting"><img class="cover" src="/img/cover1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">3D_Gaussian_Splatting</div></div><div class="info-2"><div class="info-item-1">主要参考文章 https://zhuanlan.zhihu.com/p/679809915 问题定义辐射场辐射场是对三维空间中光分布的表示，捕捉了光与环境中的表面和材质的相互作用。从数学上来说，辐射场描述为  其中函数L(x,y,z,theta, fi) 将点(x,y,z)和球坐标下的方向（theta, fi）映射成非负的值。辐射场有隐式表达和显示表达，可用于场景表示和渲染。 隐式辐射场是辐射场的一种，在表示场景中光的分布的时候，不需要显示定义场景的集合形状。最常见的就是NeRF，使用神经网络学习连续的体积表示。在NeRF，使用MLP网络将一组空间的坐标（x,y,z）和观察方向映射到颜色和密度值。任何点的辐射都不是显示存储的，而是通过查询神经网络计算得出。这种方式的好处是得到了一个可微分并且紧凑的场景，但是实际计算负载非常高。围绕NeRF的改进工作大多数也是对其速度进行的。  显示辐射场相比隐式每个点都要计算，显示直接表示了光在离散空间结构中的分布，比如体素、mesh或者点云，每个元素都储存了其在空间中相应位置的辐射信息，所以会更快的得到每个值。整体来说，显示和隐式就是空间和时间...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Keith</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/keith1276" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:22373334@buaa.edu.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%A7%88"><span class="toc-number">1.</span> <span class="toc-text">概览</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AF%E8%AF%AD%E6%A6%82%E5%BF%B5%E8%A7%A3%E9%87%8A"><span class="toc-number">1.1.</span> <span class="toc-text">术语概念解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%B0%E6%9C%89%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.</span> <span class="toc-text">现有自监督学习方法问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.</span> <span class="toc-text">模型的任务定义</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E6%A6%82%E8%A7%88"><span class="toc-number">2.</span> <span class="toc-text">模型概览</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="toc-number">3.</span> <span class="toc-text">数据获取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%87%AA%E5%8A%A8%E8%81%9A%E7%B1%BB%E5%B9%B3%E8%A1%A1%E9%87%87%E6%A0%B7%EF%BC%88Hierarchical-k-means-curation%EF%BC%89"><span class="toc-number">3.0.1.</span> <span class="toc-text">1.自动聚类平衡采样（Hierarchical k-means curation）:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%9F%BA%E4%BA%8E%E6%A3%80%E7%B4%A2%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%EF%BC%88retrieval-based-curation%EF%BC%89"><span class="toc-number">3.0.2.</span> <span class="toc-text">2.基于检索的任务相关数据（retrieval-based curation）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%AC%E5%BC%80%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">3.0.3.</span> <span class="toc-text">3.公开数据集</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E9%98%B6%E6%AE%B5"><span class="toc-number">4.</span> <span class="toc-text">训练阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Loss%E5%AE%9A%E4%B9%89"><span class="toc-number">4.0.1.</span> <span class="toc-text">Loss定义</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8E%A8%E7%90%86%E9%98%B6%E6%AE%B5"><span class="toc-number">5.</span> <span class="toc-text">推理阶段</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#patch-%E7%9B%B8%E4%BC%BC%E5%BA%A6%E5%8C%B9%E9%85%8D"><span class="toc-number">6.</span> <span class="toc-text">patch 相似度匹配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E6%B7%BB%E5%8A%A0PCA"><span class="toc-number">6.0.1.</span> <span class="toc-text">补充添加PCA</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#DINO-%E7%BA%BF%E6%80%A7%E5%A4%B4%E9%A2%84%E6%B5%8Bpatch%E7%B1%BB%E5%88%AB"><span class="toc-number">7.</span> <span class="toc-text">DINO + 线性头预测patch类别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8VOC12%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">7.0.1.</span> <span class="toc-text">使用VOC12数据集</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%B0%83%E6%95%B4%E8%A7%A3%E7%A0%81%E5%99%A8"><span class="toc-number">8.</span> <span class="toc-text">调整解码器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AA%E5%8D%B7%E7%A7%AF%E5%B1%82%E4%BD%86%E6%98%AFprototype%E6%B2%A1%E6%9C%89L2%E6%AD%A3%E5%88%99-%E6%AD%A4%E6%97%B6%E6%9C%80%E5%A5%BD%E7%9A%84mIOU%E6%98%AF0-4277"><span class="toc-number">8.0.1.</span> <span class="toc-text">加了一个卷积层但是prototype没有L2正则 此时最好的mIOU是0.4277</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EPrototype%E6%96%B9%E6%B3%95%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%9D%E8%80%83"><span class="toc-number">8.0.2.</span> <span class="toc-text">关于Prototype方法的一些思考</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#LoRA%E5%BE%AE%E8%B0%83"><span class="toc-number">9.</span> <span class="toc-text">LoRA微调</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B%E4%B8%80%E4%BA%9B%E6%80%9D%E8%80%83"><span class="toc-number">10.</span> <span class="toc-text">关于训练过程一些思考</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%88%E6%9E%9C%E5%8F%8D%E6%80%9D"><span class="toc-number">11.</span> <span class="toc-text">效果反思</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/datasets/" title="datasets"><img src="/img/cover1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="datasets"/></a><div class="content"><a class="title" href="/2025/11/10/datasets/" title="datasets">datasets</a><time datetime="2025-11-10T08:39:02.000Z" title="发表于 2025-11-10 16:39:02">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/09/%E7%94%9F%E6%88%90%E7%90%86%E8%A7%A3%E7%BB%9F%E4%B8%80%E6%A1%86%E6%9E%B6/" title="生成理解统一框架"><img src="/img/cover3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成理解统一框架"/></a><div class="content"><a class="title" href="/2025/11/09/%E7%94%9F%E6%88%90%E7%90%86%E8%A7%A3%E7%BB%9F%E4%B8%80%E6%A1%86%E6%9E%B6/" title="生成理解统一框架">生成理解统一框架</a><time datetime="2025-11-09T01:43:54.000Z" title="发表于 2025-11-09 09:43:54">2025-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/07/UniUGG/" title="UniUGG"><img src="/img/cover2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UniUGG"/></a><div class="content"><a class="title" href="/2025/11/07/UniUGG/" title="UniUGG">UniUGG</a><time datetime="2025-11-07T13:08:35.000Z" title="发表于 2025-11-07 21:08:35">2025-11-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/06/GSNeRF/" title="GSNeRF"><img src="/img/cover4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="GSNeRF"/></a><div class="content"><a class="title" href="/2025/11/06/GSNeRF/" title="GSNeRF">GSNeRF</a><time datetime="2025-11-06T01:54:07.000Z" title="发表于 2025-11-06 09:54:07">2025-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/01/llaMA/" title="LLaMa_LLaVA"><img src="/img/cover1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LLaMa_LLaVA"/></a><div class="content"><a class="title" href="/2025/11/01/llaMA/" title="LLaMa_LLaVA">LLaMa_LLaVA</a><time datetime="2025-11-01T09:25:54.000Z" title="发表于 2025-11-01 17:25:54">2025-11-01</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover4.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Keith</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.1"></script><script src="/js/main.js?v=5.5.1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
