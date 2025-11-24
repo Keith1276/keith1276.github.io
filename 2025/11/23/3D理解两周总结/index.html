@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>3D理解两周总结 | 春风得意马蹄急，一日看尽长安花</title><meta name="author" content="Keith"><meta name="copyright" content="Keith"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="概述总结从两周调研结果来看，近期论文主要集中在用2D VLM解决3D理解问题，而且性能上占优势，方法上更简洁，编码器不用重新train。数据集在该领域基本是ScanNet的一系列衍生作品。 性能对比基于当下调研做出初步结论，2D流派的性能比3D的略好。 LLaVA-3D（2D流派目前已知指标最佳） 3D-LLaVA（3D流派） CDViews 工作一览1. CDViewsArxiv 2025年5月">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3D理解两周总结">
+<meta property="og:url" content="http://keith1276.github.io/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="春风得意马蹄急，一日看尽长安花">
+<meta property="og:description" content="概述总结从两周调研结果来看，近期论文主要集中在用2D VLM解决3D理解问题，而且性能上占优势，方法上更简洁，编码器不用重新train。数据集在该领域基本是ScanNet的一系列衍生作品。 性能对比基于当下调研做出初步结论，2D流派的性能比3D的略好。 LLaVA-3D（2D流派目前已知指标最佳） 3D-LLaVA（3D流派） CDViews 工作一览1. CDViewsArxiv 2025年5月">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://keith1276.github.io/img/cover3.png">
+<meta property="article:published_time" content="2025-11-23T14:33:19.000Z">
+<meta property="article:modified_time" content="2025-11-24T02:32:55.973Z">
+<meta property="article:author" content="Keith">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://keith1276.github.io/img/cover3.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "3D理解两周总结",
+  "url": "http://keith1276.github.io/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/",
+  "image": "http://keith1276.github.io/img/cover3.png",
+  "datePublished": "2025-11-23T14:33:19.000Z",
+  "dateModified": "2025-11-24T02:32:55.973Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Keith",
+      "url": "http://keith1276.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/fbb1.jpg"><link rel="canonical" href="http://keith1276.github.io/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '3D理解两周总结',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover3.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">春风得意马蹄急，一日看尽长安花</span></a><a class="nav-page-title" href="/"><span class="site-name">3D理解两周总结</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">3D理解两周总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-23T14:33:19.000Z" title="发表于 2025-11-23 22:33:19">2025-11-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-24T02:32:55.973Z" title="更新于 2025-11-24 10:32:55">2025-11-24</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从两周调研结果来看，近期论文主要集中在用2D VLM解决3D理解问题，而且性能上占优势，方法上更简洁，编码器不用重新train。数据集在该领域基本是ScanNet的一系列衍生作品。</p>
+<h3 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h3><p>基于当下调研做出初步结论，2D流派的性能比3D的略好。</p>
+<h4 id="LLaVA-3D（2D流派目前已知指标最佳）"><a href="#LLaVA-3D（2D流派目前已知指标最佳）" class="headerlink" title="LLaVA-3D（2D流派目前已知指标最佳）"></a>LLaVA-3D（2D流派目前已知指标最佳）</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124102228155.png" alt="image-20251124102228155"></p>
+<h4 id="3D-LLaVA（3D流派）"><a href="#3D-LLaVA（3D流派）" class="headerlink" title="3D-LLaVA（3D流派）"></a>3D-LLaVA（3D流派）</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124102011674.png" alt="image-20251124102011674"></p>
+<h3 id="CDViews"><a href="#CDViews" class="headerlink" title="CDViews"></a>CDViews</h3><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124102348104.png" alt="image-20251124102348104"></p>
+<h1 id="工作一览"><a href="#工作一览" class="headerlink" title="工作一览"></a>工作一览</h1><h2 id="1-CDViews"><a href="#1-CDViews" class="headerlink" title="1. CDViews"></a>1. CDViews</h2><p><strong>Arxiv 2025年5月28日   （ICML 2025）</strong></p>
+<h3 id="解决的最关键问题"><a href="#解决的最关键问题" class="headerlink" title="解决的最关键问题"></a>解决的最关键问题</h3><ul>
+<li>希望使用纯2D数据进行3D理解</li>
+<li>VLM的输入有token限制，需要有很好的视角选择方案</li>
+</ul>
+<p><strong>回顾一下过往视角采样</strong>：</p>
+<ol>
+<li>平均采样（和随机区别不太大）</li>
+<li>以VQA为例，直接用VLM评估视图和Q的相似度</li>
+</ol>
+<blockquote>
+<p>[!NOTE]</p>
+<p>上述方法，平均采样效果最差，直接评估视图和Q相似度容易导致些许问题，比如文章中距离，</p>
+<p>Q: 沙发对面的物体是什么</p>
+<p>A：茶几</p>
+<p>如果直接通过沙发去匹配视图相关度，茶几并没有被大比重的关注到。</p>
+</blockquote>
+<h3 id="文章完成的任务"><a href="#文章完成的任务" class="headerlink" title="文章完成的任务"></a>文章完成的任务</h3><p>VQA</p>
+<h3 id="文章创新点"><a href="#文章创新点" class="headerlink" title="文章创新点"></a>文章创新点</h3><ul>
+<li>ViewSelector模块：输入Q和多视图V，能够筛选每一个视图V和Q的相关度</li>
+<li>ViewAnnotator模块：为ViewSelector提供自动化标签。</li>
+<li>ViewNMS：在ViewSelector之后再根据相机姿减少图像冗余。</li>
+</ul>
+<p>最终得到了一套视图筛选方案。 </p>
+<h3 id="工作内容展示"><a href="#工作内容展示" class="headerlink" title="工作内容展示"></a>工作内容展示</h3><h4 id="架构总览"><a href="#架构总览" class="headerlink" title="架构总览"></a>架构总览</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251123224755862.png" alt="image-20251123224755862"></p>
+<p>总体架构：所有创新点集中在视角筛选，然后多视图进入VLM直接得到理解的结果了。</p>
+<h4 id="ViewSelector模块"><a href="#ViewSelector模块" class="headerlink" title="ViewSelector模块"></a>ViewSelector模块</h4><p>该模块输入视图v和Q，判断v的匹配分数</p>
+<p>这个模块时需要train的，标签的来源就是文章提出的viewAnnotator</p>
+<h4 id="ViewAnnotator模块"><a href="#ViewAnnotator模块" class="headerlink" title="ViewAnnotator模块"></a>ViewAnnotator模块</h4><p>为了支撑上边的操作，文章提出<strong>ViewAnnotator</strong>，分为两个部分，</p>
+<ul>
+<li>第一部分通过固定prompt格式为&lt;Q,A&gt;生成新的Caption，得到一个比较完整的QA理解 <strong>C</strong></li>
+<li>第二部分通过<strong>C</strong>和 <strong>V</strong>，给出匹配、不匹配、不相关三选一，就算Labeling完毕了。</li>
+</ul>
+<p>上述两个部分均用最后的LVLM完成，<strong>（该工作统一使用LLaVA-OV-7B）</strong></p>
+<p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251123225446138.png" alt="image-20251123225446138"></p>
+<h4 id="View-NMS"><a href="#View-NMS" class="headerlink" title="View NMS"></a>View NMS</h4><p>从ViewSelector出来之后每个视角有了得分，按照得分把视图进行排序，然后按顺序，按相机视角重叠程度作为评估标准，进行NMS。最终得到筛选出来的图像。</p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>本工作指标对比其他的3D理解是相当优秀的（几乎和LLaVA-3D对标），而且流程很优雅没有复杂的pipeline。代码仓库公开。由于初步准备使用多视图完成一体化框架，这个工作是个很好的借鉴。</p>
+<p>简洁优雅的工作，仓库经过兜兜转转应该运行没大问题了，虽然flash_attn我还是关闭了。调整了代码几个地方最后报错剩下了CUDA-OUT of memory。</p>
+<p><strong>工作局限性：only for VQA</strong></p>
+<h2 id="2-GPT4Scene"><a href="#2-GPT4Scene" class="headerlink" title="2. GPT4Scene"></a>2. GPT4Scene</h2><p><strong>Arxiv 2025 年5月11日   49 引用 暂未被接受</strong></p>
+<h3 id="解决的最关键问题-1"><a href="#解决的最关键问题-1" class="headerlink" title="解决的最关键问题"></a>解决的最关键问题</h3><p>以往的3D理解通常需要输入额外的2.5D（RGBD）或者3D数据（点云）才能实现比较好的效果，文章希望通过一个纯2D方案完成3D理解</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>早期大家希望3D应该有自己的方法，想用点云完成3D理解。 但是很遗憾3D社区的<strong>点云-文本标注</strong>并不像2D那样完善，迟迟无法出现像<strong>DINO</strong>一样的基础模型。后来的一些工作发现加入2D多视图的特征会提升效果。但是3D-2D-文本的特征对齐是需要费心去设计的，于是近期很多工作希望回归2D，认为当前的条件下2D多视图去完成3D理解效果可能是最好的一条路线。</p>
+</blockquote>
+<h3 id="文章完成的任务-1"><a href="#文章完成的任务-1" class="headerlink" title="文章完成的任务"></a>文章完成的任务</h3><ul>
+<li>VQA</li>
+<li>Dense Captioning</li>
+<li>Visual grouding</li>
+</ul>
+<h3 id="文章创新点-1"><a href="#文章创新点-1" class="headerlink" title="文章创新点"></a>文章创新点</h3><ul>
+<li>这个框架微调了VLM，使其能够理解3D空间</li>
+<li>引入BEV图像统筹全局信息丢给VLM</li>
+<li>构建了一个新数据集 ScanAlign</li>
+</ul>
+<h3 id="工作内容展示-1"><a href="#工作内容展示-1" class="headerlink" title="工作内容展示"></a>工作内容展示</h3><h4 id="框架总览"><a href="#框架总览" class="headerlink" title="框架总览"></a>框架总览</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251123232347097.png" alt="image-20251123232347097"></p>
+<p>视频输入，重建3D点云，进行实例分割，为每个实例打上tag，然后投影到多视图上，顺便填一个BEV。</p>
+<p>有意思的是什么，视频里边的多视图被合成了一个大图，相当于最后进VLM的是两张图。一张BEV，一张多视图。这个可能和token限制有关。粘合起来尺寸再做了做缩放？</p>
+<p><strong><u>所以这里的Grouding任务其实输出的是一个实例标号</u></strong>，和其他输出<strong>bouding box</strong>的有所不同</p>
+<h4 id="ScanAlign数据集"><a href="#ScanAlign数据集" class="headerlink" title="ScanAlign数据集"></a>ScanAlign数据集</h4><p>做了一个缝合</p>
+<p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251123232804945.png" alt="image-20251123232804945"></p>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><p>这一篇工作Idea读来并不那么耳目一新，有点偏工程，并且可以预见的，使用3D重建点云再分割，一整个pipeline下来费时必然不少。</p>
+<h2 id="3-LLaVA-3D"><a href="#3-LLaVA-3D" class="headerlink" title="3.LLaVA-3D"></a>3.LLaVA-3D</h2><p><strong>2025 年4月 27日 （2025 ICCV）</strong></p>
+<h3 id="解决的最关键问题-2"><a href="#解决的最关键问题-2" class="headerlink" title="解决的最关键问题"></a>解决的最关键问题</h3><p>和GPT4Scene类似，希望让2D VLM具有3D理解能力，这篇文章输入的数据是RGBD序列</p>
+<h3 id="文章完成的任务-2"><a href="#文章完成的任务-2" class="headerlink" title="文章完成的任务"></a>文章完成的任务</h3><ul>
+<li>VQA</li>
+<li>dense captioning</li>
+<li>Grounding 【有生成点云环节，在点云上套box】</li>
+</ul>
+<h3 id="文章创新点-2"><a href="#文章创新点-2" class="headerlink" title="文章创新点"></a>文章创新点</h3><ul>
+<li>3D position embeddings 使得 2D VLM理解3D场景</li>
+</ul>
+<p>3D的 pos embedding其实相比上边的BEV是听起来更有设计感一些的。</p>
+<h3 id="工作内容展示-2"><a href="#工作内容展示-2" class="headerlink" title="工作内容展示"></a>工作内容展示</h3><h4 id="整体框架"><a href="#整体框架" class="headerlink" title="整体框架"></a>整体框架</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124001112301.png" alt="image-20251124001112301"></p>
+<p>相当简洁明了，示意图</p>
+<p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124001159577.png" alt="image-20251124001159577"></p>
+<p>流程看这个，依据相机参数和深度图回推了图片上每个点对应在3D空间的位置（3D patch）而后由于LLM tokens有限，把体素空间做了pooling，最终得到了3D tokens。之类蓝色的部分是视觉提示（用户给出空间坐标），<strong>最后输出点云以及bouding box的代码部分貌似暂时没有展示</strong>。</p>
+<h4 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h4><p>从论文来看是非常简洁有力的架构，目前效能指标在所有模型里边是最优</p>
+<p>并且做到了多个理解任务。</p>
+<p><strong>局限</strong>：代码仓库配置给的很难弄，按作者方法一堆版本冲突，自己改的过程也比较困难。并非torch &#x3D; 2.1过于落后导致。</p>
+<h2 id="4-3D-LLaVA"><a href="#4-3D-LLaVA" class="headerlink" title="4.3D-LLaVA"></a>4.3D-LLaVA</h2><p><strong>ArXIv 2025年1月2日 (2025 CVPR)</strong></p>
+<h3 id="解决最关键问题"><a href="#解决最关键问题" class="headerlink" title="解决最关键问题"></a>解决最关键问题</h3><p>其他使用3D数据的工作要么依赖复杂的离线数据处理，以及在下游任务中需要使用多个任务头。这篇文章希望找一种极简的架构。</p>
+<p><strong>【在前几篇工作里边的体现：比如GPT4Scene，前置管线流程很长，比如LLaVA-3D，在最后的分割需要额外引入分割解码头】</strong></p>
+<h3 id="文章完成的任务-3"><a href="#文章完成的任务-3" class="headerlink" title="文章完成的任务"></a>文章完成的任务</h3><ul>
+<li>VQA</li>
+<li>Referring segmentation （其实和grouding类似但是要求更高些）</li>
+<li>Dense captionning</li>
+</ul>
+<h3 id="文章创新点-3"><a href="#文章创新点-3" class="headerlink" title="文章创新点"></a>文章创新点</h3><ul>
+<li>架构合并多任务，没有额外引入其他模块的情况下能够完成多个理解任务。</li>
+<li>除了文字提示，引入的视觉提示，可以在UI上click 、 拉box强调某部分，拓展人机交互方式</li>
+</ul>
+<h3 id="工作内容展示-3"><a href="#工作内容展示-3" class="headerlink" title="工作内容展示"></a>工作内容展示</h3><h4 id="总体框架"><a href="#总体框架" class="headerlink" title="总体框架"></a>总体框架</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124101150028.png" alt="image-20251124101150028"></p>
+<p>SuperPoint Pooling主流方式是两种，一种直接体素化均值聚合，一种类似于pointNet++</p>
+<h4 id="Visual-Sampler和OST的结合"><a href="#Visual-Sampler和OST的结合" class="headerlink" title="Visual Sampler和OST的结合"></a>Visual Sampler和OST的结合</h4><p><img src="/./3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/image-20251124101337411.png" alt="image-20251124101337411"></p>
+<p>如果click，直接从超点里边选取最近的3个点</p>
+<p>如果画box或者mask，则均值聚合范围内的所有点。</p>
+<h3 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h3><p>该工作创新点是足够的，其训练分两阶段，先train了一个3D点云编码器（论文里边没有细说流程）</p>
+<p>然后把这个拿过来train OST和LLM。 但是由于数据问题，整体效果是比2D方法差了一些。</p>
+<h2 id="VSI-Bench-mark"><a href="#VSI-Bench-mark" class="headerlink" title="VSI Bench mark"></a>VSI Bench mark</h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://keith1276.github.io">Keith</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://keith1276.github.io/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/">http://keith1276.github.io/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://keith1276.github.io" target="_blank">春风得意马蹄急，一日看尽长安花</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/cover3.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/11/19/3D-LLaVA/" title="3D-LLaVA"><img class="cover" src="/img/cover2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">3D-LLaVA</div></div><div class="info-2"><div class="info-item-1">文章动机时间：2025年4月  当下很多效能很好的模型依赖于比较复杂的离线处理，并且每个任务单独一个头，这通常导致架构相当复杂 弥补“对话”与“定位”之间的割裂，一个好的3D VLM应该不仅能文本输出，也应该能进行定位和mask输出 更灵活的人机交互（不仅仅是语言，也可以进行框选、点击等）UI交互  工作难点 目前的分割大多依赖于单独的分割模型，和LLM无关，需要让LLM输出统一完成这些工作。 如何找到合适的视觉提示嵌入，传统上的视觉提示往往直接过线性层得到潜入，这种方法往往没有办法获得很好的效果 token数量的控制，使用的是点云输入，肯定涉及到采样 缺乏现成的3D基础模型，需要自己3D训练编码器。  文章贡献 提出了3D-LLaVA，使用3D LLM 统一了多个任务 VQA、进行mask定位以及dense captioning 提出多功能的OST，为视觉连接器提供了一个新视角（传统连接器是把视觉特征转化成语言特征交给LLM，至于分割用的是其他单独的模块，这里甚至还可以输入视觉提示特征） 建立了强有力的基准，在多个数据集上评测效果很好。  工作架构 结论与应用文章结尾强调3D ...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/fbb1.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Keith</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/keith1276" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:22373334@buaa.edu.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.0.1.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-number">1.0.2.</span> <span class="toc-text">性能对比</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LLaVA-3D%EF%BC%882D%E6%B5%81%E6%B4%BE%E7%9B%AE%E5%89%8D%E5%B7%B2%E7%9F%A5%E6%8C%87%E6%A0%87%E6%9C%80%E4%BD%B3%EF%BC%89"><span class="toc-number">1.0.2.1.</span> <span class="toc-text">LLaVA-3D（2D流派目前已知指标最佳）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3D-LLaVA%EF%BC%883D%E6%B5%81%E6%B4%BE%EF%BC%89"><span class="toc-number">1.0.2.2.</span> <span class="toc-text">3D-LLaVA（3D流派）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CDViews"><span class="toc-number">1.0.3.</span> <span class="toc-text">CDViews</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E4%B8%80%E8%A7%88"><span class="toc-number">2.</span> <span class="toc-text">工作一览</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-CDViews"><span class="toc-number">2.1.</span> <span class="toc-text">1. CDViews</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E7%9A%84%E6%9C%80%E5%85%B3%E9%94%AE%E9%97%AE%E9%A2%98"><span class="toc-number">2.1.1.</span> <span class="toc-text">解决的最关键问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%AE%8C%E6%88%90%E7%9A%84%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.1.2.</span> <span class="toc-text">文章完成的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%88%9B%E6%96%B0%E7%82%B9"><span class="toc-number">2.1.3.</span> <span class="toc-text">文章创新点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA"><span class="toc-number">2.1.4.</span> <span class="toc-text">工作内容展示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">2.1.4.1.</span> <span class="toc-text">架构总览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ViewSelector%E6%A8%A1%E5%9D%97"><span class="toc-number">2.1.4.2.</span> <span class="toc-text">ViewSelector模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ViewAnnotator%E6%A8%A1%E5%9D%97"><span class="toc-number">2.1.4.3.</span> <span class="toc-text">ViewAnnotator模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#View-NMS"><span class="toc-number">2.1.4.4.</span> <span class="toc-text">View NMS</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">2.1.5.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GPT4Scene"><span class="toc-number">2.2.</span> <span class="toc-text">2. GPT4Scene</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E7%9A%84%E6%9C%80%E5%85%B3%E9%94%AE%E9%97%AE%E9%A2%98-1"><span class="toc-number">2.2.1.</span> <span class="toc-text">解决的最关键问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%AE%8C%E6%88%90%E7%9A%84%E4%BB%BB%E5%8A%A1-1"><span class="toc-number">2.2.2.</span> <span class="toc-text">文章完成的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%88%9B%E6%96%B0%E7%82%B9-1"><span class="toc-number">2.2.3.</span> <span class="toc-text">文章创新点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA-1"><span class="toc-number">2.2.4.</span> <span class="toc-text">工作内容展示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E6%80%BB%E8%A7%88"><span class="toc-number">2.2.4.1.</span> <span class="toc-text">框架总览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ScanAlign%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">2.2.4.2.</span> <span class="toc-text">ScanAlign数据集</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">2.2.5.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-LLaVA-3D"><span class="toc-number">2.3.</span> <span class="toc-text">3.LLaVA-3D</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E7%9A%84%E6%9C%80%E5%85%B3%E9%94%AE%E9%97%AE%E9%A2%98-2"><span class="toc-number">2.3.1.</span> <span class="toc-text">解决的最关键问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%AE%8C%E6%88%90%E7%9A%84%E4%BB%BB%E5%8A%A1-2"><span class="toc-number">2.3.2.</span> <span class="toc-text">文章完成的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%88%9B%E6%96%B0%E7%82%B9-2"><span class="toc-number">2.3.3.</span> <span class="toc-text">文章创新点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA-2"><span class="toc-number">2.3.4.</span> <span class="toc-text">工作内容展示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6"><span class="toc-number">2.3.4.1.</span> <span class="toc-text">整体框架</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">2.3.4.2.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3D-LLaVA"><span class="toc-number">2.4.</span> <span class="toc-text">4.3D-LLaVA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%9C%80%E5%85%B3%E9%94%AE%E9%97%AE%E9%A2%98"><span class="toc-number">2.4.1.</span> <span class="toc-text">解决最关键问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%AE%8C%E6%88%90%E7%9A%84%E4%BB%BB%E5%8A%A1-3"><span class="toc-number">2.4.2.</span> <span class="toc-text">文章完成的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E5%88%9B%E6%96%B0%E7%82%B9-3"><span class="toc-number">2.4.3.</span> <span class="toc-text">文章创新点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%E5%B1%95%E7%A4%BA-3"><span class="toc-number">2.4.4.</span> <span class="toc-text">工作内容展示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6"><span class="toc-number">2.4.4.1.</span> <span class="toc-text">总体框架</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Visual-Sampler%E5%92%8COST%E7%9A%84%E7%BB%93%E5%90%88"><span class="toc-number">2.4.4.2.</span> <span class="toc-text">Visual Sampler和OST的结合</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">2.4.5.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VSI-Bench-mark"><span class="toc-number">2.5.</span> <span class="toc-text">VSI Bench mark</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/" title="3D理解两周总结"><img src="/img/cover3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3D理解两周总结"/></a><div class="content"><a class="title" href="/2025/11/23/3D%E7%90%86%E8%A7%A3%E4%B8%A4%E5%91%A8%E6%80%BB%E7%BB%93/" title="3D理解两周总结">3D理解两周总结</a><time datetime="2025-11-23T14:33:19.000Z" title="发表于 2025-11-23 22:33:19">2025-11-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/19/3D-LLaVA/" title="3D-LLaVA"><img src="/img/cover2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3D-LLaVA"/></a><div class="content"><a class="title" href="/2025/11/19/3D-LLaVA/" title="3D-LLaVA">3D-LLaVA</a><time datetime="2025-11-19T07:49:37.000Z" title="发表于 2025-11-19 15:49:37">2025-11-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/10/datasets/" title="datasets"><img src="/img/cover4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="datasets"/></a><div class="content"><a class="title" href="/2025/11/10/datasets/" title="datasets">datasets</a><time datetime="2025-11-10T08:39:02.000Z" title="发表于 2025-11-10 16:39:02">2025-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/09/%E7%94%9F%E6%88%90%E7%90%86%E8%A7%A3%E7%BB%9F%E4%B8%80%E6%A1%86%E6%9E%B6/" title="生成理解统一框架"><img src="/img/cover1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="生成理解统一框架"/></a><div class="content"><a class="title" href="/2025/11/09/%E7%94%9F%E6%88%90%E7%90%86%E8%A7%A3%E7%BB%9F%E4%B8%80%E6%A1%86%E6%9E%B6/" title="生成理解统一框架">生成理解统一框架</a><time datetime="2025-11-09T01:43:54.000Z" title="发表于 2025-11-09 09:43:54">2025-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/07/UniUGG/" title="UniUGG"><img src="/img/cover3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UniUGG"/></a><div class="content"><a class="title" href="/2025/11/07/UniUGG/" title="UniUGG">UniUGG</a><time datetime="2025-11-07T13:08:35.000Z" title="发表于 2025-11-07 21:08:35">2025-11-07</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover3.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Keith</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.1"></script><script src="/js/main.js?v=5.5.1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
